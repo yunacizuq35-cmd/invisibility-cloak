@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>隐形斗篷是如何实现的？—— 超材料与变换光学 · 交互演示</title>
+  <meta name="description" content="用可交互的动画演示，看懂隐形斗篷背后的物理：变换光学如何让光绕行，超材料如何提供自然界没有的“光学配方”。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Ccircle%20cx='16'%20cy='16'%20r='12'%20fill='none'%20stroke='%23a78bfa'%20stroke-width='3'/%3E%3Ccircle%20cx='16'%20cy='16'%20r='4'%20fill='%2359d6ff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <nav class="site-nav" aria-label="主导航">
+    <a class="brand" href="#top">
+      <span class="brand-dot" aria-hidden="true"></span>
+      隐形斗篷 · 原理演示
+    </a>
+    <div class="nav-links">
+      <a href="#seeing">看见</a>
+      <a href="#routing">绕行</a>
+      <a href="#transformation">变换光学</a>
+      <a href="#metamaterials">超材料</a>
+      <a href="#milestones">里程碑</a>
+      <a href="#limits">局限</a>
+    </div>
+  </nav>
+
+  <header id="top" class="hero">
+    <canvas id="hero-canvas" class="hero-canvas" aria-hidden="true"></canvas>
+    <div class="hero-content">
+      <span class="eyebrow">物理学交互演示</span>
+      <h1>隐形斗篷是如何实现的？</h1>
+      <p class="lede">超材料 × 变换光学 —— 让光“绕道而行”，而不是反射回来。</p>
+      <p class="hero-sub">向下滚动，用可交互的动画一步步看懂这个魔法背后的物理。</p>
+      <a class="cta" href="#routing">开始探索</a>
+    </div>
+    <div class="hero-scroll-hint" aria-hidden="true">向下滚动</div>
+  </header>
+
+  <main id="main">
+    <section id="seeing" class="section">
+      <div class="section-head reveal">
+        <span class="section-index">01</span>
+        <div>
+          <h2>看见，其实是光的“回声”</h2>
+          <p class="section-lead">
+            我们能看见一个物体，是因为光照射到它之后被反射、散射，最终进入我们的眼睛。
+            物体的轮廓、颜色、明暗，都是光与它“碰撞”后留下的信息。
+          </p>
+        </div>
+      </div>
+      <div class="reveal seeing-grid">
+        <figure class="diagram" role="img" aria-label="示意图：光线从光源出发，照射到物体后被反射进眼睛，因此我们看见物体。">
+          <svg viewBox="0 0 520 200" aria-hidden="true">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent-cyan)"/>
+              </marker>
+            </defs>
+            <circle cx="150" cy="100" r="34" class="obj-fill"/>
+            <circle cx="150" cy="100" r="34" class="obj-stroke"/>
+            <g class="ray ray-in">
+              <line x1="12" y1="62" x2="118" y2="88" marker-end="url(#arrow)"/>
+              <line x1="12" y1="100" x2="116" y2="100" marker-end="url(#arrow)"/>
+              <line x1="12" y1="138" x2="118" y2="112" marker-end="url(#arrow)"/>
+            </g>
+            <g class="ray ray-out">
+              <line x1="182" y1="76" x2="316" y2="34" marker-end="url(#arrow)"/>
+              <line x1="176" y1="124" x2="316" y2="168" marker-end="url(#arrow)"/>
+            </g>
+            <g class="eye" transform="translate(354 96)">
+              <path d="M 0 0 Q 58 -34 116 0 Q 58 34 0 0 Z" class="eye-outer"/>
+              <circle cx="58" cy="0" r="16" class="eye-iris"/>
+              <circle cx="58" cy="0" r="7" class="eye-pupil"/>
+            </g>
+            <text x="18" y="188" class="svg-label">光源</text>
+            <text x="128" y="188" class="svg-label">物体</text>
+            <text x="388" y="188" class="svg-label">眼睛</text>
+          </svg>
+          <figcaption>光被物体反射进眼睛 —— 这就是“看见”。</figcaption>
+        </figure>
+        <div class="seeing-text">
+          <p>
+            所以，想让人“看不见”一个物体，最直接的办法不是把它涂黑，而是<strong>让照向它的光“假装”什么都没碰到</strong>：
+            光线绕过物体，再从另一侧按原方向继续前进，仿佛穿过的只是一片空地。
+          </p>
+          <p>
+            这正是隐形斗篷的终极目标。听上去像魔法，但它有一条可计算的物理路径 —— 变换光学。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="routing" class="section">
+      <div class="section-head reveal">
+        <span class="section-index">02</span>
+        <div>
+          <h2>核心思路：让光绕道</h2>
+          <p class="section-lead">
+            隐形斗篷像一个“光学分流器”：把迎面而来的光引导到中间区域的四周，绕过被隐藏的物体，
+            再让光回到原本的方向。下面是一束平面波穿过二维圆柱斗篷的演示。
+          </p>
+        </div>
+      </div>
+      <div class="demo reveal">
+        <div class="demo-stage">
+          <canvas id="ray-canvas" class="stage-canvas" role="img" aria-label="平面波穿过隐形斗篷的动画：拖动隐身强度，观察光线如何绕过中间物体、阴影如何消失。"></canvas>
+          <div class="stage-caption" aria-hidden="true">
+            <span class="legend"><i class="swatch swatch-wave"></i>入射平面波</span>
+            <span class="legend"><i class="swatch swatch-cloak"></i>斗篷（变换区域）</span>
+            <span class="legend"><i class="swatch swatch-obj"></i>被隐藏的物体</span>
+          </div>
+        </div>
+        <div class="demo-panel">
+          <div class="panel-title">
+            <h3>平面波 · 隐身强度</h3>
+            <output id="ray-strength-out" class="value" for="ray-strength">100%</output>
+          </div>
+          <label class="control-row" for="ray-strength">
+            <span>隐身强度</span>
+            <input type="range" id="ray-strength" class="range" min="0" max="100" step="1" value="100">
+          </label>
+          <div class="control-row split">
+            <button type="button" id="ray-play" class="btn" aria-pressed="true">
+              <span class="btn-label">暂停</span>
+            </button>
+            <button type="button" id="ray-reset" class="btn btn-ghost">重置</button>
+          </div>
+          <p class="panel-note">
+            隐身强度为 0 时，物体挡住光线、投下阴影；拉到 100%，光线被平滑地“推开”绕过物体，
+            从另一侧以平面波形式完整射出 —— 观察者看到的只是未受扰动的背景。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="transformation" class="section">
+      <div class="section-head reveal">
+        <span class="section-index">03</span>
+        <div>
+          <h2>数学的魔法：变换光学</h2>
+          <p class="section-lead">
+            2006 年，Pendry、Leonhardt 等人几乎同时提出：如果能把“空间”像橡皮泥一样重新塑形 ——
+            把物体所在的中心“挤”成一个点，光线就会沿着被拉伸后的坐标绕行。这个坐标变换所对应的材料参数，
+            就是斗篷需要的“光学配方”。
+          </p>
+        </div>
+      </div>
+      <div class="demo reveal">
+        <div class="demo-stage">
+          <canvas id="grid-canvas" class="stage-canvas" role="img" aria-label="坐标网格变形动画：中心区域被撑开，网格线绕过隐藏区，直观展示变换光学如何拉伸空间。"></canvas>
+        </div>
+        <div class="demo-panel">
+          <div class="panel-title">
+            <h3>空间拉伸 · 网格变形</h3>
+            <output id="grid-strength-out" class="value" for="grid-strength">100%</output>
+          </div>
+          <label class="control-row" for="grid-strength">
+            <span>变换强度</span>
+            <input type="range" id="grid-strength" class="range" min="0" max="100" step="1" value="100">
+          </label>
+          <label class="control-row switch-row" for="grid-auto">
+            <span>自动演示</span>
+            <span class="switch">
+              <input type="checkbox" id="grid-auto">
+              <span class="track" aria-hidden="true"></span>
+            </span>
+          </label>
+          <p class="panel-note">
+            左侧是“物理空间”，中心一圈是斗篷。原本规则的网格（虚拟空间）在斗篷内被径向压缩 ——
+            中心被“撑开”成一个圆环，网格线顺着圆环绕行。光线沿网格线传播，于是自然绕过了被隐藏的区域。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="metamaterials" class="section">
+      <div class="section-head reveal">
+        <span class="section-index">04</span>
+        <div>
+          <h2>超材料：自然界里不存在的“光学配方”</h2>
+          <p class="section-lead">
+            变换光学算出的“配方”，要求材料的折射率随位置连续变化，甚至出现负折射、强烈的各向异性 ——
+            天然材料没有这些性质。超材料用远小于波长的金属 / 介质微结构，来“定制”材料对电磁波的响应。
+          </p>
+        </div>
+      </div>
+      <div class="reveal meta-grid">
+        <figure class="meta-figure" role="img" aria-label="开口谐振环阵列示意图：由周期性排列的 C 形金属环组成，可定制材料的电磁响应。">
+          <svg class="srr-svg" viewBox="0 0 420 220" aria-hidden="true">
+            <g class="srr srr-1"><path d="M 30 34 a 16 16 0 1 1 0 32 l 4 0" class="srr-ring"/><path d="M 22 42 a 8 8 0 1 1 0 16 l 4 0" class="srr-ring"/></g>
+            <g class="srr srr-2"><path d="M 102 34 a 16 16 0 1 1 0 32 l 4 0" class="srr-ring"/><path d="M 94 42 a 8 8 0 1 1 0 16 l 4 0" class="srr-ring"/></g>
+            <g class="srr srr-3"><path d="M 174 34 a 16 16 0 1 1 0 32 l 4 0" class="srr-ring"/><path d="M 166 42 a 8 8 0 1 1 0 16 l 4 0" class="srr-ring"/></g>
+            <g class="srr srr-4"><path d="M 246 34 a 16 16 0 1 1 0 32 l 4 0" class="srr-ring"/><path d="M 238 42 a 8 8 0 1 1 0 16 l 4 0" class="srr-ring"/></g>
+            <g class="srr srr-5"><path d="M 318 34 a 16 16 0 1 1 0 32 l 4 0" class="srr-ring"/><path d="M 310 42 a 8 8 0 1 1 0 16 l 4 0" class="srr-ring"/></g>
+            <g class="srr srr-6"><path d="M 30 108 a 16 16 0 1 1 0 32 l 4 0" class="srr-ring"/><path d="M 22 116 a 8 8 0 1 1 0 16 l 4 0" class="srr-ring"/></g>
+            <g class="srr srr-7"><path d="M 102 108 a 16 16 0 1 1 0 32 l 4 0" class="srr-ring"/><path d="M 94 116 a 8 8 0 1 1 0 16 l 4 0" class="srr-ring"/></g>
+            <g class="srr srr-8"><path d="M 174 108 a 16 16 0 1 1 0 32 l 4 0" class="srr-ring"/><path d="M 166 116 a 8 8 0 1 1 0 16 l 4 0" class="srr-ring"/></g>
+            <g class="srr srr-9"><path d="M 246 108 a 16 16 0 1 1 0 32 l 4 0" class="srr-ring"/><path d="M 238 116 a 8 8 0 1 1 0 16 l 4 0" class="srr-ring"/></g>
+            <g class="srr srr-10"><path d="M 318 108 a 16 16 0 1 1 0 32 l 4 0" class="srr-ring"/><path d="M 310 116 a 8 8 0 1 1 0 16 l 4 0" class="srr-ring"/></g>
+            <g class="srr srr-11"><path d="M 30 182 a 16 16 0 1 1 0 32 l 4 0" class="srr-ring"/><path d="M 22 190 a 8 8 0 1 1 0 16 l 4 0" class="srr-ring"/></g>
+            <g class="srr srr-12"><path d="M 102 182 a 16 16 0 1 1 0 32 l 4 0" class="srr-ring"/><path d="M 94 190 a 8 8 0 1 1 0 16 l 4 0" class="srr-ring"/></g>
+            <g class="srr srr-13"><path d="M 174 182 a 16 16 0 1 1 0 32 l 4 0" class="srr-ring"/><path d="M 166 190 a 8 8 0 1 1 0 16 l 4 0" class="srr-ring"/></g>
+            <g class="srr srr-14"><path d="M 246 182 a 16 16 0 1 1 0 32 l 4 0" class="srr-ring"/><path d="M 238 190 a 8 8 0 1 1 0 16 l 4 0" class="srr-ring"/></g>
+            <g class="srr srr-15"><path d="M 318 182 a 16 16 0 1 1 0 32 l 4 0" class="srr-ring"/><path d="M 310 190 a 8 8 0 1 1 0 16 l 4 0" class="srr-ring"/></g>
+          </svg>
+          <figcaption>开口谐振环（split-ring resonator）阵列 —— 超材料最经典的结构单元之一。</figcaption>
+        </figure>
+        <div class="meta-cards">
+          <article class="mini-card">
+            <h3>亚波长结构</h3>
+            <p>结构尺寸远小于工作波长，光感受到的是“平均”出来的等效材料，而非一个个零件。</p>
+          </article>
+          <article class="mini-card">
+            <h3>可设计的折射率</h3>
+            <p>改变结构的形状、尺寸与排列，就能在空间上连续“定制”折射率，甚至负值。</p>
+          </article>
+          <article class="mini-card">
+            <h3>各向异性响应</h3>
+            <p>沿不同方向给出不同的 ε 与 μ，满足变换光学对材料张量的苛刻要求。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="milestones" class="section">
+      <div class="section-head reveal">
+        <span class="section-index">05</span>
+        <div>
+          <h2>从理论到现实</h2>
+          <p class="section-lead">理论出现后不到半年，第一个微波斗篷就在实验室里被造了出来。</p>
+        </div>
+      </div>
+      <ol class="timeline reveal">
+        <li class="timeline-item">
+          <span class="year">2006</span>
+          <div>
+            <h3>变换光学的诞生</h3>
+            <p>Pendry、Schurig 与 Smith，以及 Leonhardt，分别独立提出用坐标变换设计隐形方案的理论框架。</p>
+          </div>
+        </li>
+        <li class="timeline-item">
+          <span class="year">2006</span>
+          <div>
+            <h3>首个微波斗篷</h3>
+            <p>Smith 团队用同心环超材料，在微波频段第一次让物体对特定频率“隐形”。</p>
+          </div>
+        </li>
+        <li class="timeline-item">
+          <span class="year">2007–</span>
+          <div>
+            <h3>向可见光推进</h3>
+            <p>研究者不断向更短波长迈进，并发展出“地毯斗篷”（carpet cloak）、超表面等更实用的路线。</p>
+          </div>
+        </li>
+        <li class="timeline-item">
+          <span class="year">今天</span>
+          <div>
+            <h3>仍在路上</h3>
+            <p>真正的、宏观的、全角度可见光隐身斗篷，依然是活跃的开放课题。</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section id="limits" class="section">
+      <div class="section-head reveal">
+        <span class="section-index">06</span>
+        <div>
+          <h2>为什么“完美斗篷”还造不出来</h2>
+          <p class="section-lead">理想模型很优雅，现实世界却处处设限。</p>
+        </div>
+      </div>
+      <div class="limit-grid reveal">
+        <article class="limit-card">
+          <h3>带宽窄</h3>
+          <p>超材料的谐振特性通常只在某个频率附近工作，难以对整个可见光波段同时隐身。</p>
+        </article>
+        <article class="limit-card">
+          <h3>损耗大</h3>
+          <p>金属微结构会吸收能量，光线绕过时强度衰减，斗篷本身反而可能“露馅”。</p>
+        </article>
+        <article class="limit-card">
+          <h3>制造难</h3>
+          <p>可见光波长只有几百纳米，要求结构更小、更精密，大规模三维制造极具挑战。</p>
+        </article>
+        <article class="limit-card">
+          <h3>三维与全角度</h3>
+          <p>多数演示是二维或特定极化；宏观物体、任意角度、任意偏振的隐身仍然困难。</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>隐形斗篷是“重新设计光的路径”，而不是魔法。</p>
+    <p class="footer-ref">
+      参考：J. B. Pendry et al., <cite>Science</cite> 312, 1780 (2006)；U. Leonhardt, <cite>Science</cite> 312, 1777 (2006)；
+      D. Schurig et al., <cite>Science</cite> 314, 977 (2006)。
+    </p>
+    <p class="footer-note">本页为科普演示，光线路径是理想二维圆柱斗篷的简化模型。</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
